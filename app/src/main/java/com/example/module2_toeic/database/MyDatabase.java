@@ -1,4 +1,4 @@
-package com.example.module2_toeic;
+package com.example.module2_toeic.database;
 
 import android.content.Context;
 

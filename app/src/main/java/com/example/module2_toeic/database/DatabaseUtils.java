@@ -1,11 +1,15 @@
-package com.example.module2_toeic;
+package com.example.module2_toeic.database;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.example.module2_toeic.models.CategoryModel;
+import com.example.module2_toeic.models.TopicModel;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DatabaseUtils {
@@ -55,5 +59,37 @@ public class DatabaseUtils {
         Log.d(TAG, "getListTopic: " + topicModels);
 
         return topicModels;
+    }
+
+    public List<CategoryModel> getListCategory(List<TopicModel> topicModels) {
+        List<CategoryModel> categoryModelList = new ArrayList<>();
+        for (int i = 0; i < topicModels.size(); i = i + 5) {
+            CategoryModel categoryModel = new CategoryModel(
+                    topicModels.get(i).getCategory(),
+                    topicModels.get(i).getColor());
+            categoryModelList.add(categoryModel);
+        }
+        Log.d(TAG, "getListCategory: " + categoryModelList);
+        return categoryModelList;
+    }
+
+    public HashMap<String, List<TopicModel>> getHashMapTopic(List<TopicModel> topicModels,
+                                                             List<CategoryModel> categoryModels) {
+        HashMap<String, List<TopicModel>> hashMap = new HashMap<>();
+
+        //add 10 list
+        for (int i = 0; i < categoryModels.size(); i++) {
+            //i = 9
+            int positionTopic = i * 5; //45
+            // == list.add(T)
+            // hashmap.put(key - category name, value - list: 5 topic in category)
+            hashMap.put(
+                    categoryModels.get(i).getName(),
+                    topicModels.subList(positionTopic, positionTopic + 5)); //45 -> 50
+            Log.d(TAG, "getHashMapTopic: ----" + categoryModels.get(i).getName());
+            Log.d(TAG, "getHashMapTopic: " + hashMap.get(categoryModels.get(i).getName()));
+        }
+
+        return hashMap;
     }
 }
