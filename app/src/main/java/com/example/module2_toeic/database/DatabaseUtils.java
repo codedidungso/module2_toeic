@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.example.module2_toeic.models.CategoryModel;
 import com.example.module2_toeic.models.TopicModel;
+import com.example.module2_toeic.models.WordModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,5 +92,40 @@ public class DatabaseUtils {
         }
 
         return hashMap;
+    }
+
+    public WordModel getRandomWord(int topicId, int preWordId) {
+        sqLiteDatabase = myDatabase.getReadableDatabase();
+
+        int level = 0;
+        Cursor cursor;
+
+        do {
+            double random = Math.random() * 100;
+            if (random <=5 ) level = 4; //5
+            else if (random <= 15) level = 3; //5->15: 10
+            else if (random <= 30) level = 2; //15->30: 15
+            else if (random <= 55) level = 1; //30->55: 25
+            else level = 0; //45
+
+            cursor = sqLiteDatabase.rawQuery("SELECT * FROM " + TABLE_WORD +
+                    " WHERE topic_id =  " + topicId +
+                    " AND LEVEL = " + level +
+                    " AND id <> " + preWordId +
+                    " ORDER BY RANDOM() LIMIT 1", null);
+        } while (cursor.getCount() == 0);
+
+        cursor.moveToFirst();
+        int id = cursor.getInt(0);
+        String origin = cursor.getString(1);
+        String explanation = cursor.getString(2);
+        String type = cursor.getString(3);
+        String pronunciation = cursor.getString(4);
+        String imageUrl = cursor.getString(5);
+        String example = cursor.getString(6);
+        String example_trans = cursor.getString(7);
+
+        return new WordModel(id, origin, explanation, type, pronunciation, imageUrl,
+                example, example_trans, topicId, level);
     }
 }
