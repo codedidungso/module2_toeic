@@ -62,6 +62,7 @@ public class StudyActivity extends AppCompatActivity {
     RelativeLayout rlBackground;
 
     private int preWordId = -1;
+    private WordModel wordModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +70,16 @@ public class StudyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_study);
         ButterKnife.bind(this);
 
+        getRandomWord();
+    }
+
+    private void getRandomWord() {
         TopicModel topicModel = (TopicModel) getIntent().getSerializableExtra(KEY_TOPIC);
 
         tvNameTopic.setText(topicModel.getName());
         rlBackground.setBackgroundColor(Color.parseColor(topicModel.getColor()));
 
-        WordModel wordModel = DatabaseUtils.getInstance(this).getRandomWord(topicModel.getId(), preWordId);
+        wordModel = DatabaseUtils.getInstance(this).getRandomWord(topicModel.getId(), preWordId);
         preWordId = wordModel.getId();
 
         tvOrigin.setText(wordModel.getOrigin());
@@ -110,9 +115,13 @@ public class StudyActivity extends AppCompatActivity {
                 break;
             case R.id.tv_didnt_know:
                 changeContent(true);
+                DatabaseUtils.getInstance(this).updateWordLevel(wordModel, false);
+                getRandomWord();
                 break;
             case R.id.tv_knew:
                 changeContent(true);
+                DatabaseUtils.getInstance(this).updateWordLevel(wordModel, true);
+                getRandomWord();
                 break;
         }
     }

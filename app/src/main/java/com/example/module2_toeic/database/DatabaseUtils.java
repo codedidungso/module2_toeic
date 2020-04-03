@@ -1,5 +1,6 @@
 package com.example.module2_toeic.database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -127,5 +128,21 @@ public class DatabaseUtils {
 
         return new WordModel(id, origin, explanation, type, pronunciation, imageUrl,
                 example, example_trans, topicId, level);
+    }
+
+    public void updateWordLevel(WordModel wordModel, boolean isKnown) {
+        sqLiteDatabase = myDatabase.getWritableDatabase();
+
+        int level = wordModel.getLevel();
+        if (isKnown && level < 4) {
+            level++;
+        } else if (!isKnown && level > 0) {
+            level--;
+        }
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("level", level);
+        sqLiteDatabase.update(TABLE_WORD, contentValues,
+                "id = " + wordModel.getId(), null);
     }
 }
