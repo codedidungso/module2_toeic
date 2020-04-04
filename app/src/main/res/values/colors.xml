@@ -6,7 +6,7 @@
     <color name="textBlack">#000000</color>
     <color name="textTransparent">#B3FFFFFF</color>
     <color name="colorAccent">#6c3346</color>
-    <color name="colorPbNew">#6e999999</color>
+    <color name="colorPbNew">#6EBFBFBF</color>
     <color name="colorPbReview">#47966474</color>
     <color name="colorPbMaster">#966474</color>
 </resources>

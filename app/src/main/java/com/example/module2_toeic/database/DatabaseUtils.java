@@ -145,4 +145,34 @@ public class DatabaseUtils {
         sqLiteDatabase.update(TABLE_WORD, contentValues,
                 "id = " + wordModel.getId(), null);
     }
+
+    public int getNumberOfNewWordByTopicId(int topicId) {
+        sqLiteDatabase = myDatabase.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM " + TABLE_WORD + " WHERE level = 0 and topic_id = " + topicId, null);
+        return cursor.getCount();
+    }
+
+    public int getNumberOfMasterByTopicId(int topicId) {
+        sqLiteDatabase = myDatabase.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM " + TABLE_WORD + " WHERE level = 4 and topic_id = " + topicId, null);
+        return cursor.getCount();
+    }
+
+    public void updateLastTime(TopicModel topicModel, String lastTime) {
+        sqLiteDatabase = myDatabase.getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("last_time", lastTime);
+        sqLiteDatabase.update(TABLE_TOPIC, contentValues,
+                "id = " + topicModel.getId(), null);
+    }
+
+    public String getLastTimeByTopicId(int topicId) {
+        sqLiteDatabase = myDatabase.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase
+                .rawQuery("SELECT last_time FROM " + TABLE_TOPIC
+                        + " WHERE id = " + topicId, null);
+        cursor.moveToFirst();
+        return cursor.getString(0);
+    }
 }

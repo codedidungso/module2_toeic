@@ -1,8 +1,12 @@
 package com.example.module2_toeic.activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.LayoutTransition;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -63,6 +67,7 @@ public class StudyActivity extends AppCompatActivity {
 
     private int preWordId = -1;
     private WordModel wordModel;
+    private AnimatorSet animatorSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +75,34 @@ public class StudyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_study);
         ButterKnife.bind(this);
 
-        getRandomWord();
+        loadData();
     }
 
-    private void getRandomWord() {
+    private void nextWord(boolean isKnown) {
+        setupAnimation(R.animator.animation_move_to_left);
+
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                DatabaseUtils.getInstance(StudyActivity.this)
+                        .updateWordLevel(wordModel, isKnown);
+                loadData();
+                clFull.setLayoutTransition(null);
+                changeContent(true);
+                setupAnimation(R.animator.animation_move_from_right);
+            }
+        });
+    }
+
+    private void setupAnimation(int animatorId) {
+        animatorSet = (AnimatorSet) AnimatorInflater
+                .loadAnimator(StudyActivity.this, animatorId);
+        animatorSet.setTarget(cvWord);
+        animatorSet.start();
+    }
+
+    private void loadData() {
         TopicModel topicModel = (TopicModel) getIntent().getSerializableExtra(KEY_TOPIC);
 
         tvNameTopic.setText(topicModel.getName());
@@ -111,17 +140,14 @@ public class StudyActivity extends AppCompatActivity {
                 onBackPressed();
                 break;
             case R.id.tv_details:
+                clFull.setLayoutTransition(new LayoutTransition());
                 changeContent(false);
                 break;
             case R.id.tv_didnt_know:
-                changeContent(true);
-                DatabaseUtils.getInstance(this).updateWordLevel(wordModel, false);
-                getRandomWord();
+                nextWord(false);
                 break;
             case R.id.tv_knew:
-                changeContent(true);
-                DatabaseUtils.getInstance(this).updateWordLevel(wordModel, true);
-                getRandomWord();
+                nextWord(true);
                 break;
         }
     }

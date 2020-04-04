@@ -6,15 +6,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
 import com.example.module2_toeic.R;
 import com.example.module2_toeic.activities.StudyActivity;
+import com.example.module2_toeic.database.DatabaseUtils;
 import com.example.module2_toeic.models.CategoryModel;
 import com.example.module2_toeic.models.TopicModel;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -97,11 +101,31 @@ public class ToeicExpandableListAdapter extends BaseExpandableListAdapter {
         final TopicModel topicModel = (TopicModel) getChild(groupPosition, childPosition);
 
         TextView tvName = convertView.findViewById(R.id.tv_topic);
+        ProgressBar pbTopic = convertView.findViewById(R.id.pb_topic);
+        TextView tvLastTime = convertView.findViewById(R.id.tv_last_time);
+
         tvName.setText(topicModel.getName());
+        String lastTime = DatabaseUtils.getInstance(
+                parent.getContext()).getLastTimeByTopicId(topicModel.getId());
+        if (lastTime == null) {
+            tvLastTime.setText("Never learned before");
+        } else {
+            tvLastTime.setText(lastTime);
+        }
+
+        pbTopic.setMax(12);
+        pbTopic.setProgress(DatabaseUtils.getInstance(parent.getContext())
+                .getNumberOfMasterByTopicId(topicModel.getId()));
+        pbTopic.setSecondaryProgress(12 - DatabaseUtils.getInstance(parent.getContext())
+                .getNumberOfNewWordByTopicId(topicModel.getId()));
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+                String lastTime = simpleDateFormat.format(Calendar.getInstance().getTime());
+                DatabaseUtils.getInstance(parent.getContext()).updateLastTime(topicModel, lastTime);
+
                 Intent intent = new Intent(parent.getContext(), StudyActivity.class);
                 intent.putExtra(StudyActivity.KEY_TOPIC, topicModel);
                 parent.getContext().startActivity(intent);

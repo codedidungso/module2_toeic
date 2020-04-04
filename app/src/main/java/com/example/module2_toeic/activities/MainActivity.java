@@ -35,4 +35,10 @@ public class MainActivity extends AppCompatActivity {
         toeicExpandableListAdapter = new ToeicExpandableListAdapter(categoryModels, hashMap);
         lvTopics.setAdapter(toeicExpandableListAdapter);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        toeicExpandableListAdapter.notifyDataSetChanged();
+    }
 }
